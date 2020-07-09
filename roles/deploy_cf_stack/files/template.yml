@@ -1,10 +1,21 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Tes3mp EC2 CloudFormation Template
+Parameters:
+  GameServerPassword:
+    Type: String
+    Default: ''
+    Description: The password to allow connection to the TES3MP server.
+  StackUUID:
+    Type: String
+    Default: ''
+    Description: A UUID postfixed to resource names to avoid inter-stack conflicts
 Resources:
   Tes3mpSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: tes3mp-server-sg
+      GroupName: !Sub
+        - tes3mp-server-sg-${UUID}
+        - { UUID: !Ref StackUUID }
       GroupDescription: Security group to allow ssh admin and tes3mp server access
       SecurityGroupEgress:
         - IpProtocol: tcp
@@ -24,7 +35,7 @@ Resources:
           CidrIp: 0.0.0.0/0
           FromPort: 25565
           ToPort: 25565
-      VpcId: vpc-e0484588
+      VpcId: vpc-46ca5e3e
   Tes3mpEC2:
     Type: AWS::EC2::Instance
     Metadata:
@@ -39,7 +50,7 @@ Resources:
                 maximumPlayers = 10 
                 hostname = aws-tes3mp 
                 logLevel = 1
-                password = You Should Really Change This Password
+                password = This is a really super duper password 
                 [Plugins]
                 home = /server/data
                 plugins = serverCore.lua
@@ -58,11 +69,13 @@ Resources:
                 5e38e8abdbdfe87beed2494d5c76245e226d63b5
     Properties:
       DisableApiTermination: false
-      ImageId: ami-0f65671a86f061fcd
+      ImageId: ami-06c94f9acb4ba21b2
       InstanceType: t2.micro
       KeyName: tes3mp-server-kp
       SecurityGroups:
-        - tes3mp-server-sg
+        - !Sub
+          - tes3mp-server-sg-${UUID}
+          - { UUID: !Ref StackUUID }
       UserData: 
         Fn::Base64: 
           !Sub |

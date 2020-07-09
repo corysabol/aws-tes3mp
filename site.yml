@@ -1,0 +1,8 @@
+---
+- name: Deploy TES3MP server to an EC2 using CloudFormation
+  hosts: localhost 
+  connection: local
+  gather_facts: false
+  
+  roles:
+    - deploy_cf_stack

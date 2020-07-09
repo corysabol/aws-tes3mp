@@ -1,0 +1,25 @@
+---
+- name: Deploy CloudFormation stack using the template file. Will not run if 'delete-stack' tag is specified.
+  cloudformation:
+    stack_name: "tes3mp-ansible-test" 
+    state: "present"
+    region: "us-west-2" 
+    disable_rollback: true
+    template: "roles/deploy_cf_stack/files/template.yml"
+  args:
+    template_parameters:
+      GameServerPassword: This is a really secure password
+      StackUUID: "{{ 9999999 | random | to_uuid }}"
+  register: stack
+  when: "'delete-stack' not in ansible_run_tags"
+  tags: [ 'always', 'create-stack' ]
+
+- name: show stack outputs
+  debug: 
+    msg: "Stack output:\n {{stack.stack_outputs}}"
+
+- name: Delete stack
+  cloudformation:
+    stack_name: "tes3mp-ansible-test"
+    state: "absent"
+  tags: [ 'never', 'delete-stack' ]
